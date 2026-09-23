@@ -1,10 +1,3 @@
-.________________________________________________________________________________.
-| ||======||  ||\   || ||====||  ||======|| ||=====|| ||====|| ||\   || ||====|| |
-|     ||      || \  || ||        ||      || ||        ||____   || \  || ||____   |
-|     ||      ||  \ || ||====||  ||      || ||   ==|| ||       ||  \ || ||       |
-| ||======||  ||   \|| ||        ||======|| ||=====|| ||====|| ||   \|| ||====|| |
-|________________________________________________________________________________|
-
 ############
 # InfoGene #
 #############
@@ -66,19 +59,14 @@ pip install -e .
 
 ### OPTIONAL. Check that InfoGene and associated dependencies are installed using:
     
-``bash                                  Expected Output
-python -m django --version      ---> "$ python -m django --version 6.0.5"
-python -m pytest --version      ---> "$ python -m pytest --version pytest 9.0.3"
-pip check                       ---> "No broken requirements found."    
-pip show InfoGene               ---> "$ pip show InfoGene
-```                                     Name: InfoGene
-                                        Version: 0.1.0
-                                        Summary: A web application for searching HGNC gene information
-                                        Home-page:
-                                        Author:
-                                        Author-email: Nathania Kulkarni <nathania.kulkarni@postgrad.manchester.ac.uk>
-                                        License:
-                                        Location: /Users/<name>/miniconda3/envs/InfoGene/lib/python3.12/site-packages
-                                        Editable project location: <selected_path>/InfoGene
-                                        Requires: Django, pytest, pytest-cov, pytest-django
-                                        Required-by:                           "
+```bash
+python -m django --version
+python -m pytest --version
+pip check
+```
+
+Expected outputs should report Danjo version at '6.0.5' and pytest at '9.0.3'. Successful pip check should show:
+
+```text 
+No broken requirements found.
+```
