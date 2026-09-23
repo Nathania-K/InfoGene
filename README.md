@@ -1,0 +1,2 @@
+# InfoGene
+Application whcih allows 
