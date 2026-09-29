@@ -1,3 +1,6 @@
+<!-- ========================================================================== -->
+<!-- TEMPLATE:  A reusable HTML file allowing display of dynamic data           -->
+<!-- ========================================================================== -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -38,7 +41,7 @@
     <!-- ========================================================================== -->
     <!-- Page Heading                                                               -->
     <!-- ========================================================================== -->
-    <h1>Welcome to InfoGene</h1>
+    <h1> 🧬 Welcome to InfoGene 🧬 </h1>
 
     <!-- ========================================================================== -->
     <!-- Search Form                                                                -->
@@ -52,7 +55,7 @@
 
     {% csrf_token %}
 
-    <label for="gene">Gene:</label>
+    <label for="gene">Please enter a HGNC ID or Symbol:</label>
 
     <input 
         type="text" 
@@ -65,7 +68,7 @@
     <br><br>
 
     <button type="submit">
-        Get Gene Information
+        🔍 Get Gene Information
     </button>
 
     </form>
@@ -74,84 +77,6 @@
         <p class="error-message" role="alert">
             {{ error_message }}
         </p>
-    {% endif %}
-
-    <!-- ========================================================================== -->
-    <!-- Search Results                                                             -->
-    <!-- ========================================================================== -->    
-
-    <!-- Results only displayed after search request is performed. 
-    -->
-
-    {% if gene %}
-        <section class="results">
-            <h2>Gene Information:</h2>
-
-            <dl> 
-                <dt><strong>HGNC-approved gene symbol:</strong></dt>
-                <dd>{{ gene.symbol }}</dd>
-
-                <dt><strong>HGNC ID:</strong></dt>
-                <dd>{{ gene.hgnc_id }}</dd>
-
-                <dt><strong>Approved Gene Name:</strong></dt>
-                <dd>{{ gene.name }}</dd>
-
-                <dt><strong>Previous Gene Symbol:</strong></dt>
-                <dd>
-                    {% if gene.previous_symbols %}
-                        {{ gene.previous_symbols|join:", " }}
-                    {% else %}
-                        None recorded
-                    {% endif %}
-                </dd>
-
-                <dt><strong>Previous Gene Name(s):</strong></dt>
-                <dd>
-                    {% if gene.previous_names %}
-                        {{ gene.previous_names|join:", " }}
-                    {% else %}
-                        None recorded
-                    {% endif %}
-                </dd>
-
-                <dt><strong>Gene Alias Symbol(s):</strong></dt>
-                <dd>
-                    {% if gene.alias_symbols %}
-                        {{ gene.alias_symbols|join:", " }}
-                    {% else %}
-                        None recorded
-                    {% endif %}
-                </dd>
-
-                <dt><strong>Gene Alias Name(s):</strong></dt>
-                <dd>
-                    {% if gene.alias_names %}
-                        {{ gene.alias_names|join:", " }}
-                    {% else %}
-                        None recorded
-                    {% endif %}
-                </dd>
-
-                <dt><strong>MANE Select Transcript:</strong></dt>
-                <dd>
-                    {% if gene.mane_select %}
-                        {{ gene.mane_select|join:", " }}
-                    {% else %}
-                        None recorded
-                    {% endif %}
-                </dd>
-
-                <dt><strong>MANE Plus Clinical Transcript:</strong></dt>
-                <dd>
-                    {% if gene.mane_plus_clinical %}
-                        {{ gene.mane_plus_clinical|join:", " }}
-                    {% else %}
-                        None recorded
-                    {% endif %}
-                </dd>
-            </dl>
-        </section>
     {% endif %}
 
 </div> 

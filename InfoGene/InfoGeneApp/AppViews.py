@@ -3,7 +3,6 @@ Views implement application logic, handle requests and determine appropriate HTM
 
 As dataset will not be in database format but in tsv upon application startup, no ORM needed.
 
-
 """
 
 import logging
@@ -19,7 +18,8 @@ logger = logging.getLogger(__name__)
 
 logger.info("Initialising Django view layer")
 
-TEMPLATE_NAME = "InfoGene/index.html"
+HOME_TEMPLATE = "InfoGene/index.html"
+RESULTS_TEMPLATE = "InfoGene/results.html"
 
 
 #Initialises "database" (i.e. HGNC.tsv file for lookup) in Data.
@@ -57,7 +57,7 @@ def home(request: HttpRequest) -> HttpResponse:
     """
     logger.debug("Rendering homepage.")
 
-    return render(request, TEMPLATE_NAME)
+    return render(request, HOME_TEMPLATE)
 
 #Defines and renders application searchpage.
 def search(request: HttpRequest) -> HttpResponse:
@@ -76,7 +76,7 @@ def search(request: HttpRequest) -> HttpResponse:
     if request.method != "POST":
         logger.debug("Ignoring non-POST request.")
 
-        return render(request, TEMPLATE_NAME)
+        return render(request, HOME_TEMPLATE)
 
     #prepares parameter input by cleaning whitespaces to allow for search request of gene.
     search_term = request.POST.get("gene", "").strip()
@@ -87,7 +87,7 @@ def search(request: HttpRequest) -> HttpResponse:
 
         return render(
             request,
-            TEMPLATE_NAME,
+            HOME_TEMPLATE,
             {
                 "error_message": (
                     "Please enter a valid HGNC symbol/ID."
@@ -106,7 +106,7 @@ def search(request: HttpRequest) -> HttpResponse:
 
         return render(
             request,
-            TEMPLATE_NAME,
+            HOME_TEMPLATE,
             {
                 "error_message": (
                     f"No gene was found for '{search_term}'."
@@ -117,10 +117,10 @@ def search(request: HttpRequest) -> HttpResponse:
 
     logger.info("Gene found: %s", search_term)
 
-    #returns template with searched gene and appropraite information in GeneRecord format.
+    #returns results template with searched gene and appropraite information in GeneRecord format.
     return render(
         request,
-        TEMPLATE_NAME,
+        RESULTS_TEMPLATE,
         {
             "gene": gene_selection,
             "search_term": search_term,

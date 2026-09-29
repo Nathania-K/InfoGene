@@ -17,14 +17,15 @@ Information which can be obtained are listed below:
 • MANE Plus Clinical transcripts
 
 
-################
-# Requirements #
-################
+##############################
+# Requirements & Data Source #
+##############################
 
-Prior to installation, ensure 'Anaconda' or 'Miniconda' is installed.
+Prior to installation, ensure 'Anaconda' or 'Miniconda' is installed
 
 This app does not use a typical Django database therefore, a download of the required dataset (hgnc_complete_set.txt) to allow fast lookup of HGNC genes. Instuctions are supplied in the Installation section below.
 
+In future versions/for improvememnt, a dataset will be integrated within the application so manual download will no longer be needed, however, this will mean that the app will require regular updates to the versioning to reflect updates from the datasource (https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt).
 
 ################
 # Installation #
