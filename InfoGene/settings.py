@@ -44,7 +44,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
 ]
 
 #-------------------------------------------------------------#
@@ -149,4 +149,4 @@ LOGGING = {
 #-------------------------------------------------------------#
 
 DATA_DIR = BASE_DIR / "Data"
-DATA_FILE = os.path.join(DATA_DIR, "hgnc_complete_set.txt")
+DATA_FILE = DATA_DIR / "hgnc_complete_set.txt"

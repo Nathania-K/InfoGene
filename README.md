@@ -21,7 +21,10 @@ Information which can be obtained are listed below:
 # Requirements #
 ################
 
-Prior to installation, ensure 'Anaconda' or 'Miniconda' is installed
+Prior to installation, ensure 'Anaconda' or 'Miniconda' is installed.
+
+This app does not use a typical Django database therefore, a download of the required dataset (hgnc_complete_set.txt) to allow fast lookup of HGNC genes. Instuctions are supplied in the Installation section below.
+
 
 ################
 # Installation #
@@ -56,6 +59,16 @@ pip install -e .
 ```
 
 (Installs app and pinned dependencies from the requirements.txt file)
+
+### 4. Download lightweight dataset.
+
+```bash
+mkdir -p Data
+
+curl --fail --location --show-error \
+  --output "Data/hgnc_complete_set.txt" \
+  "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt"
+```
 
 ### OPTIONAL. Check that InfoGene and associated dependencies are installed using:
     

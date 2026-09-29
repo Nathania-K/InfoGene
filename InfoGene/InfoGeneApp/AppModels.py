@@ -13,22 +13,24 @@ import logging
 from typing import Mapping, TypedDict
 from pathlib import Path
 
-logger = getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
-#Step 1. Create class to format generic gene dictionaries required for both HDNC_ID and HGNC_Index searches.
+#Step 1. Create class ("table") to format generic gene dictionaries required for both HDNC_ID and HGNC_Index searches.
 class GeneRecord(TypedDict):
     symbol: str
     hgnc_id: str
     name: str 
     previous_symbols: list[str]
     previous_names: list[str]
-    aliases: list[str]
+    alias_symbols: list[str]
+    alias_names: list[str]
     mane_select: list[str]
+    mane_plus_clinical: list[str]
 
 class GeneIndex(TypedDict):
     by_symbol: dict[str, GeneRecord]
-    by_hgnc_id: dic[str, GeneRecord]
+    by_hgnc_id: dict[str, GeneRecord]
 
 
 #Step 2. State the required columns so app can check if they exist within record.
@@ -116,8 +118,8 @@ def parse_row(row: Mapping[str, str | None],) -> GeneRecord:
 def read_file(filename: Path) -> GeneIndex:
     
     #Opens a list for the searches so that required fields can be filled after reading .tsv in GeneRecord format.
-    by_symbol = dict[str, GeneRecord] = {}
-    by_hgnc_id = dict[str, GeneRecord] = {}
+    by_symbol: dict[str, GeneRecord] = {}
+    by_hgnc_id: dict[str, GeneRecord] = {}
 
 #Step 6. Opens .tsv file and uses csv.DictReader to 
     try:
@@ -125,6 +127,11 @@ def read_file(filename: Path) -> GeneIndex:
             #Creates .tsv reader. csv.DictReader treats first row as headers and '/t' indicates tab dilimited.
             reader = csv.DictReader(file, delimiter="\t")
 
+            #Removes whitespaces from headings.
+            reader.fieldnames = [
+            field.strip()
+            for field in (reader.fieldnames or [])
+]
             #Finds required fieldnames and raises explainatory error if missing.
             columns = set(reader.fieldnames or [])
             missing_columns = REQUIRED_COLUMNS - columns
@@ -154,7 +161,7 @@ def read_file(filename: Path) -> GeneIndex:
                     )
 
     except OSError: 
-        logger.Exception("Unable to read HGNC data file.")
+        logger.exception("Unable to read HGNC data file.")
         raise
 
     if not by_symbol:
@@ -180,7 +187,7 @@ def find_gene(search: str, genes: GeneIndex) -> GeneRecord | None:
         return None
 
     if query.isdigit():
-        query = f"HGNC: {query}"
+        query = f"HGNC:{query}"
 
     if query.startswith("HGNC:"):
         result = genes["by_hgnc_id"].get(query)

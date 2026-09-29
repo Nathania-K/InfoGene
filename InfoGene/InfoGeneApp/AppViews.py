@@ -116,14 +116,6 @@ def search(request: HttpRequest) -> HttpResponse:
         )
 
     logger.info("Gene found: %s", search_term)
-        
-    #Provides aliases in a combined view and removes potential duplicated aliases.
-    aliases = list(
-        dict.fromkeys(
-            gene_selection["alias_symbols"]
-            + gene_selection["alias_names"]
-        ),
-    )
 
     #returns template with searched gene and appropraite information in GeneRecord format.
     return render(
@@ -131,7 +123,6 @@ def search(request: HttpRequest) -> HttpResponse:
         TEMPLATE_NAME,
         {
             "gene": gene_selection,
-            "aliases": aliases,
             "search_term": search_term,
         },
     )

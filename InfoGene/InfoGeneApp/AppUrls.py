@@ -2,8 +2,8 @@
 #Urls that will be needed by to determine the  which display view to handle request.
 #Checks URL patterns in order (first matching used).
 """
-from django import path
-from InfoGene.InfoGeneApp import AppViews
+from django.urls import path
+from InfoGene.InfoGeneApp import AppViews as views
 
 urlpatterns = [
 
