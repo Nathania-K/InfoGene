@@ -4,7 +4,6 @@ Views implement application logic, handle requests and determine appropriate HTM
 As dataset will not be in database format but in tsv upon application startup, no ORM needed.
 
 """
-
 import logging
 
 from django.conf import settings
@@ -47,7 +46,7 @@ except Exception:
 #Defines and render application homepage.
 def home(request: HttpRequest) -> HttpResponse:
     """
-    Renders the application homepage
+    Renders the application homepage.
 
     Args:
         request (HttpRequest): Incoming HTTP request for homepage.
@@ -62,7 +61,7 @@ def home(request: HttpRequest) -> HttpResponse:
 #Defines and renders application searchpage.
 def search(request: HttpRequest) -> HttpResponse:
     """
-    Processes gene search requests 
+    Processes gene search requests. 
 
     Args:
         request (HttpRequest): Incoming HTTP request contiainign submitted form data

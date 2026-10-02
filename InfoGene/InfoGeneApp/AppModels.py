@@ -1,23 +1,27 @@
 """
-#Data access and parsing utilities for .tsv file - "service layer" rather than database:
-1. reads input
-2. Parses individual records
-3. Searching loaded dataset
-#Info that the app veiws will need to function. 
-#database layer will need to configure .tsv file into database. 
+Utilities for loading, parsing, indexing, and searching HGNC gene data
+from a TSV file as oppose to using a typical Django database.
+
+The module:
+1. Defines the structure of gene records and indexes.
+2. Cleans and validates individual TSV rows ( split_values() & parse_rows() ).
+3. Loads records into indexes for efficient searching.
+4. Finds records by approved gene symbol or HGNC ID.
+
+Provides information that AppVeiws will need to display from search request. 
 """
 import csv
 import logging
 
-#Mapping provides a dictionary-like inpout whilst TypedDict descirbes expected key/vlaues of dictionaries.
-from typing import Mapping, TypedDict
+from typing import TypedDict
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
 
-#Step 1. Create class ("table") to format generic gene dictionaries required for both HDNC_ID and HGNC_Index searches.
+#Step 1. Describe expected gene dictionaries for each parsed gene dictionary.
 class GeneRecord(TypedDict):
+    """Describes the fields and value types of a parsed gene record."""
     symbol: str
     hgnc_id: str
     name: str 
@@ -28,12 +32,14 @@ class GeneRecord(TypedDict):
     mane_select: list[str]
     mane_plus_clinical: list[str]
 
+#Describes each expected search dictionaries (i.e. symbol or hgnc_id) generated post search.
 class GeneIndex(TypedDict):
+    """Indexes gene records by approved symbol and HGNC ID."""
     by_symbol: dict[str, GeneRecord]
     by_hgnc_id: dict[str, GeneRecord]
 
 
-#Step 2. State the required columns so app can check if they exist within record.
+#Step 2. List necessary headings: creates variable for which columns are required.
 REQUIRED_COLUMNS = {
     "symbol",
     "hgnc_id",
@@ -46,23 +52,24 @@ REQUIRED_COLUMNS = {
 }
 
 
-#Step 3. Clean and split multi-value fields and returns a list.
+#Step 3. Create function which will clean and split multi-value fields and returns a list.
 def split_values(value: str | None) -> list[str]:
     """
-    _summary_
+    Converts pipe-separated fields into a list of cleaned strings.
 
     Args:
-        value (str | None): _description_
+        value: A pipe-separated string, an empty string or None.
 
     Returns:
-        list[str]: _description_
+        Non-empty values with surrounding whitespace are removed.
+        Returns an empty list when the input is either empty or None.
     """
 
     #empty values returns empty items.
     if not value:
         return []
 
-    #multi-value fields split by '|' (e.g. in 'prev_symbol') cleaned and trailing whitespace removed.
+    #Splits lines on pipes (e.g. in 'prev_symbol') and trims surrounding whitespaces.
     return [
         item.strip()
         for item in value.split("|")
@@ -70,23 +77,25 @@ def split_values(value: str | None) -> list[str]:
     ]
 
 
-#Step 4. Parse the rows so that each .tsv row provides a dictionary (GeneRecord format) of required columns.
-def parse_row(row: Mapping[str, str | None],) -> GeneRecord:
+#Step 4. Creates a function that parses rows so each row provides a dictionary (GeneRecord format) of required display columns.
+def parse_row(row: dict[str, str | None]) -> GeneRecord:
     """
-    _summary_
+    Converts a raw TSV row into a cleaned GeneRecord dictionary.
+
+    Scalar fields are stripped of surrounding whitespace, and
+    pipe-separated fields are converted into lists.
 
     Args:
-        row (Mapping[str, str  |  None]): _description_
+        row: A dictionary containing TSV column headings and cell values.
 
     Raises:
-        ValueError: _description_
-        ValueError: _description_
+        ValueError: If the gene symbol or HGNC ID is missing or empty.
 
     Returns:
-        GeneRecord: _description_
+        A cleaned GeneRecord representing one gene.
     """
 
-    #uses .get to retrieve required fields and "" prevents KeyError if key missing as converted to None.
+    #.get() avoids KeyError, and 'or ""' converts a missing, None, or empty value into an empty string.
     symbol = (row.get("symbol") or "").strip()
     hgnc_id = (row.get("hgnc_id") or "").strip()
     name = (row.get("name") or "").strip()
@@ -99,7 +108,7 @@ def parse_row(row: Mapping[str, str | None],) -> GeneRecord:
     if not hgnc_id:
         raise ValueError("Record does not contain an HGNC_ID.")
 
-    #Creates a smaller dictionary used by app to search through per gene.
+    #Creates a smaller dictionary in GeneRecord format per gene.
     return {
         "symbol": symbol,
         "hgnc_id": hgnc_id,
@@ -114,17 +123,33 @@ def parse_row(row: Mapping[str, str | None],) -> GeneRecord:
     }
 
 
-#Step 5. Read the .tsv file.
+#Step 5. Main function which utilises split_value() and parse_row() to read dataset, clean, parse and return appropriate GeneRecord.
 def read_file(filename: Path) -> GeneIndex:
+    """
+    Loads an HGNC TSV file and indexes its gene records.
+
+    Invalid rows are skipped with a warning. All searches are converted into uppercase to 
+    support case-insensitve searches.
+
+    Args:
+        filename: Path to the HGNC TSV file.
+
+    Raises:
+        OSError: If the file cannot be opened or read.
+        ValueError: If required columns are missing or no valid records
+            are loaded.
+
+    Returns:
+        Gene records indexed by approved symbol and HGNC ID.
+    """
     
-    #Opens a list for the searches so that required fields can be filled after reading .tsv in GeneRecord format.
+    #Creates two dictionaries (keys = by_symbol and by_hgnc) to be filled with GeneRecord fields.
     by_symbol: dict[str, GeneRecord] = {}
     by_hgnc_id: dict[str, GeneRecord] = {}
 
-#Step 6. Opens .tsv file and uses csv.DictReader to 
     try:
         with filename.open("r", encoding="utf-8-sig", newline="") as file:
-            #Creates .tsv reader. csv.DictReader treats first row as headers and '/t' indicates tab dilimited.
+            #Creates .tsv reader. where csv.DictReader treats first row as headers and '\t' indicates tab dilimited.
             reader = csv.DictReader(file, delimiter="\t")
 
             #Removes whitespaces from headings.
@@ -132,7 +157,7 @@ def read_file(filename: Path) -> GeneIndex:
             field.strip()
             for field in (reader.fieldnames or [])
 ]
-            #Finds required fieldnames and raises explainatory error if missing.
+            #checks all required columns exist and raises explainatory error if missing and stops function.
             columns = set(reader.fieldnames or [])
             missing_columns = REQUIRED_COLUMNS - columns
 
@@ -142,14 +167,16 @@ def read_file(filename: Path) -> GeneIndex:
                     f"HGNC file missing required columns: {missing}"
                 )
 
-            #Processing of each gene ('row') and normalised to uppercase. Ignores headers (row=1).
+            # Read and process every gene row in the TSV file.
             for line_number, row in enumerate(reader, start=2):
                 try:
-                    record = parse_row(row)
+                    record = parse_row(row) #creates GeneRecords per gene row columns present.
 
+                    #Creates case-insensitve search keys for each record.
                     symbol_key = record["symbol"].upper()
                     hgnc_key = record["hgnc_id"].upper()
 
+                    #Stores the created records in list, searchable by either symbol or HGNC ID key.
                     by_symbol[symbol_key] = record
                     by_hgnc_id[hgnc_key] = record
 
@@ -172,6 +199,7 @@ def read_file(filename: Path) -> GeneIndex:
         len(by_symbol)
     )
 
+    #Combines the two completed search dictionaries into a GeneIndex and returns it.
     return {
         "by_symbol": by_symbol,
         "by_hgnc_id": by_hgnc_id,
@@ -180,6 +208,19 @@ def read_file(filename: Path) -> GeneIndex:
 
 #Step 7. Find the searched gene.
 def find_gene(search: str, genes: GeneIndex) -> GeneRecord | None:
+    """
+    Finds a gene by the approved symbol or HGNC ID.
+
+    Searching is case-insensitive. Numeric queries are treated as an
+    HGNC ID, so "1100" is converted to "HGNC:1100".
+
+    Args:
+        search: An approved gene symbol, HGNC ID, or numeric HGNC ID.
+        genes: Gene records indexed by symbol and HGNC ID.
+
+    Returns:
+        The matching GeneRecord, or None if no match exists.
+    """
 
     query = search.strip().upper()
 
