@@ -8,12 +8,12 @@ from InfoGene.InfoGeneApp import AppViews as views
 urlpatterns = [
 
     #Homepage: 
-    #Url: /
+    #Url: '/' as Django does not use leading '/'
     # Displays the search form. 
     path("", views.home, name="home"),
 
     #Gene search endpoint: 
-    #Url: /search/
+    #Url: '/search/'
     #Processes POST requests from the home form. 
     path("search/", views.search, name="search"),
 

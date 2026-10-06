@@ -14,15 +14,16 @@ def test_home_url_path():
 
     assert actual_url == expected_url
 
-def test_home_url_veiw():
+
+def test_home_url_view():
     """
     Tests to see if "home" uses the home view. 
     """
 
-    actual_home_veiw = resolve("/").func
-    expected_home_veiw = AppViews.home
+    actual_home_view = resolve("/").func
+    expected_home_view = AppViews.home
 
-    assert actual_home_veiw == expected_home_veiw
+    assert actual_home_view == expected_home_view
 
 
 def test_search_url_path():
@@ -36,13 +37,14 @@ def test_search_url_path():
 
     assert actual_url == expected_url
 
-def test_search_url_veiw():
+
+def test_search_url_view():
     """
     Tests to see if "search" uses the search view. 
     """
 
-    actual_search_veiw = resolve("/search/").func
-    expected_search_veiw = AppsViews.search
+    actual_search_view = resolve("/search/").func
+    expected_search_view = AppViews.search
 
-    assert actual_search_veiw == expected_search_veiw
+    assert actual_search_view == expected_search_view
 

@@ -118,7 +118,7 @@ def parse_row(row: dict[str, str | None]) -> GeneRecord:
         "alias_symbols": split_values(row.get("alias_symbol")),
         "alias_names": split_values(row.get("alias_name")),
         "mane_select": split_values(row.get("mane_select")),
-        #Check if this is needed (v)
+        #Returns mane_plus_clinical despite not being a heading ()
         "mane_plus_clinical": split_values(row.get("mane_plus_clinical")),
     }
 
