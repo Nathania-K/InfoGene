@@ -188,7 +188,10 @@ def read_file(filename: Path) -> GeneIndex:
                     )
 
     except OSError: 
-        logger.exception("Unable to read HGNC data file.")
+        logger.exception(
+            "Unable to read HGNC data file.", 
+            "Ensure data file is downloaded and in InfoGene/Data/"
+            )
         raise
 
     if not by_symbol:

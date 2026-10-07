@@ -39,6 +39,6 @@ def test_data_file_name():
     actual_filename = Path(settings.DATA_FILE).name
     expected_filename = "hgnc_complete_set.txt"
     
-    assert expected_filename == expected_filename
+    assert actual_filename == expected_filename
 
 
