@@ -2,10 +2,6 @@
 ### DICTCONFIG SETUP FOR LOGGING ###
 ####################################
 
-#TO REMOVE ROTATINING FILE HANDLER ONCE DEV COMPLETE AS CAN CAUSE ISSUE WITH MULTIWORKERS.
-#CHECK THAT FILE HANDLER IS APPROPRIATE PRIOR TO PRODUCTION RELEASE.
-#CHANGE ROOT LEVEL TO WARNING PRIOR TO RELEASE
-
 import os 
 from pathlib import Path
 
@@ -130,7 +126,7 @@ LOGGING = {
     },
 
     "root": {
-        "level": "DEBUG",
+        "level": "WARNING",
         "handlers": ["console", "file"],
     },
 }
