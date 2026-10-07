@@ -2,6 +2,8 @@
 # InfoGene #
 #############
 
+[![codecov](https://codecov.io/gh/Nathania-K/InfoGene/branch/main/graph/badge.svg?token=BL39YUB86L)](https://codecov.io/gh/Nathania-K/InfoGene)
+
 InfoGene is a Django web application which allows users to be able to search and receive information about human genes.
 
 Searches can be directly using the HGNC-approved gene symbol or via the HGNC ID. 
@@ -132,3 +134,18 @@ python -m pytest
 #####################
 # Coverage Reports  #
 #####################
+
+To generate coverage reports, use the following commands: 
+
+```bash
+ pytest --cov=InfoGene --cov-report=term-missing --cov-report=html
+```
+
+Then open the coverage reports using:
+
+```bash
+open htmlcov/index.html
+```
+
+(Opens a webpage where coverage reports can be viewed).
+
