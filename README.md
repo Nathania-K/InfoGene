@@ -2,9 +2,9 @@
 # InfoGene #
 #############
 
-InfoGene is a Django web app which allows users to be able to search and receive information about human genes.
+InfoGene is a Django web application which allows users to be able to search and receive information about human genes.
 
-Gene searches can be directly using the HGNC-approved gene symbol or via the HGNC ID. 
+Searches can be directly using the HGNC-approved gene symbol or via the HGNC ID. 
 
 Information which is obtained in the form of a 'GeneRecord' are listed below: 
 • HGNC-approved gene symbol
@@ -23,9 +23,9 @@ Information which is obtained in the form of a 'GeneRecord' are listed below:
 
 Prior to installation, ensure 'Anaconda' or 'Miniconda' is installed
 
-This app does not use a typical Django database therefore, a download of the dataset (hgnc_complete_set.txt) is required to allow fast lookup of HGNC genes. Instuctions are supplied in the 'Installation' section below.
+This app does not use a typical Django database, therefore, a download of the dataset (hgnc_complete_set.txt) is required to allow fast lookup of HGNC genes. Instructions are supplied in the 'Installation' section below.
 
-In future versions, a dataset should be integrated within the application so amanual download will no longer be needed. However, doing this will mean that the app will require regular updates to reflect the regular updates from the datasource (https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt).
+In future versions, a dataset should be integrated within the application so manual download will no longer be needed. However, doing this will mean that the app will require regular updates to reflect the regular updates from the datasource (https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt).
 
 ################
 # Installation #
@@ -41,7 +41,7 @@ cd InfoGene
 
 ### 2. Create Conda environment.
 
-From the project's root directory, create the environment using the 'environment.yml':
+From the project's root directory, create the environment using the `environment.yml`:
          
 ```bash
 conda env create -f environment.yml
@@ -64,7 +64,7 @@ conda activate InfoGene
 With the conda environment active, install dependencies using:
        
 ```bash
-pip install -e .
+python -m pip install -e .
 ```
 
 (Installs app and pinned dependencies from the requirements.txt file)
@@ -90,24 +90,28 @@ python -m django --version
 python -m pytest --version
 ```
 
-Expected outputs should report Danjo version at '6.0.5' and pytest at '9.0.3'. Successful pip check should show:
+Expected outputs should report Django version at '6.0.5' and pytest at '9.0.3'. Successful pip check should show:
 
 ```text 
 No broken requirements found.
+```
+Successful `python manage.py check` should show:
+
+```text
 System check identified no issues
 ```
 ###################
 # Running the App #
 ###################
 
-Once installation is complete, run the app by enter the following command from the project root:
+Once installation is complete, run the application from the project root using the following command:
 
 ```bash 
 python manage.py runserver
 ```
-Then open the Open http://127.0.0.1:8000/ in a web browser by holding the command button and clicking on the link.
+Then open http://127.0.0.1:8000/ in a web browser.
 
-To exit the session, press `Ctrl+c` within the terminal
+To exit the session, press `Ctrl+` within the terminal
 
 #######################
 # Lightweight Dataset #
