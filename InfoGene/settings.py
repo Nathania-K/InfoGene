@@ -112,21 +112,12 @@ LOGGING = {
             "level": "DEBUG" if DEBUG else "INFO",
             "formatter": "standard"
         },
+
         "file": {
-            "class": "logging.handlers.RotatingFileHandler",
+            "class": "logging.FileHandler",
             "level": "DEBUG",
             "formatter": "standard",
-            "maxBytes": 1_500_000,
-            "backupCount": 5,
-            "encoding": "utf-8",
-            "delay": True,
-            "filename": LOG_FILE
-        #To add into production once rotating file handler removed.
-        #"file": {
-            #"class": "logging.FileHandler",
-            #"level": "DEBUG",
-            #"formatter": "standard",
-            #"filename": LOG_FILE,
+            "filename": LOG_FILE,
         },
     },
 
