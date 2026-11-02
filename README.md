@@ -23,15 +23,21 @@ Information which is obtained in the form of a 'GeneRecord' are listed below:
 # Requirements & Data Source #
 ##############################
 
-Prior to installation, ensure 'Anaconda' or 'Miniconda' is installed
+InfoGene can be installed using either:
+
+1. Conda (for local use).
+2. Docker (containerised execution)
+
+For Conda, prior installation of `Anaconda` or `Miniconda` is required.
+For Docer, prior installation and running of `Docker Desktop` or `Docker Engine` is required.
 
 This app does not use a typical Django database, therefore, a download of the dataset (hgnc_complete_set.txt) is required to allow fast lookup of HGNC genes. Instructions are supplied in the 'Installation' section below.
 
 In future versions, a dataset should be integrated within the application so manual download will no longer be needed. However, doing this will mean that the app will require regular updates to reflect the regular updates from the datasource (https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt).
 
-################
-# Installation #
-################
+######################
+# Conda Installation #
+######################
 
 ### 1. Clone the Repo.
 Clone the InfoGene repository to your local machine using the following command: 
@@ -73,7 +79,7 @@ python -m pip install -e .
 
 ### 5. Download HGNC dataset.
 
-The 'Data' directory and HGNC Data Source are not included wihtin the application and therefore will require creation and download. To do this, enter the following commands from the project root.
+The 'Data' directory and HGNC Data Source are not included within the application and therefore will require creation and download. To do this, enter the following commands from the project root.
 
 ```bash
 mkdir -p Data
@@ -113,7 +119,66 @@ python manage.py runserver
 ```
 Then open http://127.0.0.1:8000/ in a web browser.
 
-To exit the session, press `Ctrl+` within the terminal
+To exit the session, hold `Ctrl+c` within the terminal.
+
+#######################
+# Docker Installation #
+#######################
+
+### 1. Build InfoGene image.
+Build InfoGene's image using the following command from the porject root:
+(Note: the docker image repo names should be lowercase): 
+
+```bash
+docker build -t infogene .
+```
+
+### 2. Create dataset volume.
+
+Enter the following command on your terminal to create InfoGene's dataset volume:
+         
+```bash
+docker volume create infogene-data
+```
+
+### 3. Download dataset to the volume.
+
+After volume creation, download the dataset into the infogene-data volume:
+         
+```bash
+docker run --rm \
+  --mount type=volume,source=infogene-data,target=/app/Data \
+  infogene \
+  python -c "import os, urllib.request; url='https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt'; final='/app/Data/hgnc_complete_set.txt'; temporary=final+'.part'; urllib.request.urlretrieve(url, temporary); os.replace(temporary, final)"
+```
+(the dataset is downloaded to the volume wihtin a temporary container after the image has been created as the download requires InfoGene's Python. The temporary container is removed once the download is complete and the volume is retained, ready for mounting).
+
+### 4. Run the container.
+
+Once the dataset download is complete, enter the following command to run the container:
+         
+```bash
+docker run --rm \
+  -p 8000:8000 \
+  --mount type=volume,source=infogene-data,target=/app/Data,readonly \
+  infogene
+```
+If you wish to confirm that the container is running, use the following command:
+
+```bash
+docker ps
+```
+
+`infogene` should be displayed in the terminal as running.
+
+The port used for this application is 8000.
+
+### 5. Run the container.
+
+Once the container is running, open the InfoGene app by entering `http://localhost:8000/` in the terminal. 
+
+To stop the container, hold `Ctrl+c` within the terminal.
+The `infogene-data` volume will persist after the container stops.
 
 #######################
 # Lightweight Dataset #
@@ -121,14 +186,29 @@ To exit the session, press `Ctrl+` within the terminal
 
 Unlike other Django applications, this app does not use a database, instead InfoGene will read the .txt file in 'Data/hgnc_complete_set.txt', select the required fields and generates Python dictionaries which can be searched via a HGNC gene symbol or ID. The app will return the relevant 'GeneRecord' information.
 
-###################
-#  Running Tests  #
-###################
+### Please note
+The hgnc_complete_set.txt datasource is regularly updated from the third party therefore, downloads of the dataset will be subject to during installation may differ if the data is updated post installation. 
 
-To run the tests within the 'Tests' folder use the following command from the project root:
+##########################
+#  Running Tests (Conda) #
+##########################
+
+To run the tests within the 'Tests' folder, use the following command from the project root:
 
 ```bash 
 python -m pytest
+```
+###########################
+#  Running Tests (Docker) #
+###########################
+
+To run the tests within the 'Tests' folder, use the following command from the project root:
+
+```bash 
+docker run --rm \
+  --mount type=volume, source=infogene-data, target=/app/Data,readonly \
+  infogene \
+  python -m pytest
 ```
 
 #####################
@@ -138,7 +218,7 @@ python -m pytest
 To generate coverage reports, use the following commands: 
 
 ```bash
- pytest --cov=InfoGene --cov-report=term-missing --cov-report=html
+pytest -m --cov=InfoGene --cov-report=term-missing --cov-report=html
 ```
 
 Then open the coverage reports using:

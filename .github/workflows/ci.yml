@@ -1,0 +1,118 @@
+name: Continuous Integration (both local and Docker testing)
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install InfoGene
+        run: python -m pip install -e .
+
+      - name: Download HGNC dataset
+        run: |
+          mkdir -p Data
+          curl --fail --location --show-error \
+            --output "Data/hgnc_complete_set.txt" \
+            "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt"
+
+      - name: Run tests with coverage
+        run: |
+          python -m pytest \
+            --cov=InfoGene \
+            --cov-report=term-missing \
+            --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          fail_ci_if_error: true
+
+#Job for testing the Docker image and uploading coverage.
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Build Docker image
+        run: docker build -t infogene .
+
+      - name: Create coverage output directory
+        run: mkdir -p coverage-output
+
+      - name: Download HGNC dataset
+        run: |
+          mkdir -p Data
+          curl --fail --location --show-error \
+            --output "Data/hgnc_complete_set.txt" \
+            "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt"
+
+      - name: Run InfoGene
+        run: |
+          docker run --detach \
+          --name infogene-app \
+          -p 8000:8000 \
+          --mount type=bind,source="${{ github.workspace }}/Data",target=/app/Data,readonly \
+          infogene
+
+      #checks Infogene response for 60 seconds, if it fails, it will print the logs and exit with an error.
+      #allows time for the application to start/load dataset before running tests.
+      #If successful, quits the loop and continues to run tests.
+      #If unsuccessful, prints logs and exits with an error (In GitHub actions, exit code=1).
+      - name: Check InfoGene response
+        run: |
+          for attempt in {1..60}; do 
+            if curl --fail --silent http://127.0.0.1:8000/ > /dev/null; then
+              echo "InfoGene started successfully."
+              exit 0
+            fi
+            sleep 1
+          done
+
+          echo "InfoGene failed to start."
+          docker logs infogene-app
+          exit 1
+
+      # Stops the detached InfoGene container after checking response, regardless of pass/fail.
+      # Ensures container is cleaned up and does not interfere with subsequent steps or jobs.
+      - name: Stop InfoGene
+        if: always()
+        run: docker rm --force infogene-app || true
+
+      - name: Run tests in Docker container
+        run: |
+          docker run --rm \
+          --mount type=bind,source="${{ github.workspace }}/Data",target=/app/Data,readonly \
+          --mount type=bind,source="${{ github.workspace }}/coverage-output",target=/coverage \
+          infogene \
+          python -m pytest \
+            --cov=InfoGene \
+            --cov-report=term-missing \
+            --cov-report=xml:/coverage/coverage.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage-output/coverage.xml
+          flags: docker
+          name: docker-test-coverage
+          fail_ci_if_error: true
