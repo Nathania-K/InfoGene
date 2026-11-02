@@ -70,7 +70,7 @@ jobs:
           docker run --detach \
           --name infogene-app \
           -p 8000:8000 \
-          --mount type=bind,source="${{ github.workspace }}/Data",target=/app/Data,readonly\
+          --mount type=bind,source="${{ github.workspace }}/Data",target=/app/Data,readonly \
           infogene
 
       #checks Infogene response for 60 seconds, if it fails, it will print the logs and exit with an error.
@@ -100,7 +100,7 @@ jobs:
       - name: Run tests in Docker container
         run: |
           docker run --rm \
-          --mount type=bind,source="${{ github.workspace }}/Data,target=/app/Data",readonly \
+          --mount type=bind,source="${{ github.workspace }}/Data",target=/app/Data,readonly \
           --mount type=bind,source="${{ github.workspace }}/coverage-output",target=/coverage \
           infogene \
           python -m pytest \
